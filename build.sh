@@ -3,7 +3,9 @@
 PATHDIR=${HOME}/.local/bin/dockers
 mkdir -p "${PATHDIR}"
 
-for DOCKERFILE in */Dockerfile; do
+PATTERN=${1:-*}
+
+for DOCKERFILE in ${PATTERN}/Dockerfile; do
   TOOLDIR=$(realpath $(dirname "${DOCKERFILE}"))
   TOOLNAME=$(basename $(dirname "${DOCKERFILE}"))
 
