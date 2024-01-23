@@ -1,0 +1,5 @@
+#!/bin/bash
+
+CMD=$(basename "$0")
+
+docker run -v "${PWD}:/work" -w "/work" infer "${CMD}" "${@}"
