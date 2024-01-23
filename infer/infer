@@ -2,4 +2,4 @@
 
 CMD=$(basename "$0")
 
-docker run -v "${PWD}:/work" -w "/work" infer "${CMD}" "${@}"
+docker run --rm -v "${PWD}:/work" -w "/work" infer "${CMD}" "${@}"
