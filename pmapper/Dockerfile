@@ -6,7 +6,7 @@ RUN git clone https://github.com/nccgroup/PMapper.git /opt/pmapper \
     && pip install /opt/pmapper \
     && mkdir /storage
 
-ENV PMAPPER_STORAGE /storage
+ENV PMAPPER_STORAGE /app/pmapper
 WORKDIR /app
 
 ENTRYPOINT [ "pmapper" ]
