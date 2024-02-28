@@ -15,5 +15,5 @@ RUN git clone https://github.com/duo-labs/cloudmapper.git /opt/cloudmapper
 
 RUN pip install -r requirements.txt
 
-WORKDIR /app
-ENTRYPOINT [ "/opt/cloudmapper/cloudmapper.py" ]
+WORKDIR /opt/cloudmapper
+ENTRYPOINT [ "/bin/bash" ]

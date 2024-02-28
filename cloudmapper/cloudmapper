@@ -1,9 +1,29 @@
 #!/bin/bash
 
+# cloudmapper doesn't like being called from outside its source tree
+# so we just start the container interactively
+
+cat <<EOF
+/workdir is mounted as your host PWD.
+Some examples of what to do in here:
+
+python cloudmapper.py configure add-account --config-file /workdir/config.json --name ACCT --id YOUR_ACCOUNT_NUMBER
+python cloudmapper.py collect --config /workdir/config.json --account ACCT
+python cloudmapper.py report --config /workdir/config.json --account ACCT
+python cloudmapper.py prepare --config /workdir/config.json --account ACCT
+python cloudmapper.py webserver --public
+EOF
+
+ACCT_DATA=${PWD}/cloudmapper-accounts
+mkdir -p "${ACCT_DATA}"
+
 docker run --rm \
-  -v "$(pwd):/app" \
+  -v "$(pwd):/workdir" \
+  -v "${ACCT_DATA}:/opt/cloudmapper/account-data" \
   -v "${HOME}/.aws:/root/.aws" \
   -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" \
   -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" \
   -e "AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" \
-  cloudmapper "${@}"
+  -p 127.0.0.1:8000:8000 \
+  -it \
+  cloudmapper
