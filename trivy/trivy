@@ -1,0 +1,13 @@
+#!/bin/bash
+
+TRIVY_CACHE=${PWD}/trivy_cache
+mkdir -p "${TRIVY_CACHE}"
+
+docker run --rm \
+  -v "$(pwd):/app" \
+  -v "${HOME}/.aws:/root/.aws" \
+  -v "${TRIVY_CACHE}:/root/.cache" \
+  -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" \
+  -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" \
+  -e "AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" \
+  trivy "${@}"
