@@ -15,6 +15,10 @@ for DOCKERFILE in ${PATTERN}/Dockerfile; do
     [ -f "${F}" ] || continue
     [ -x "${F}" ] || continue
     SCRIPTNAME=$(basename "${F}")
+
+    # Skip any that start with _
+    [[ "${SCRIPTNAME}" == _* ]] && continue
+
     ln -snf "${F}" ${PATHDIR}/${SCRIPTNAME}
   done
 done
