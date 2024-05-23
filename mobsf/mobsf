@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker run --rm \
+  -v "$(pwd):/app" \
+  -p 8000:8000 \
+  mobsf "${@}"
+
+xdg-open http://localhost:8000
