@@ -6,5 +6,6 @@ docker run -it --rm \
   -v "$(pwd):/app:rw" \
   -v /tmp:/tmp \
   -w /app \
+  -e DISPLAY="${DISPLAY}" \
   joern "/joern/${COMMAND}" "${@}"
 

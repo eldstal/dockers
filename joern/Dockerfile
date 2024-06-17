@@ -15,6 +15,20 @@ RUN git clone https://github.com/joernio/joern && cd joern && sbt stage
 RUN cd /joern && echo "" | ./querydb-install.sh
 ENV PATH ${PATH}:/joern/
 
+# Add graphical tools to visualize AST
+COPY <<EOF /usr/share/applications/imv.desktop
+[Desktop Entry]
+Version=1.0
+Name=Image Viewer
+Exec=/usr/bin/imv %F
+Terminal=false
+Type=Application
+EOF
+RUN apk add --no-cache graphviz xdg-utils imv imv-x11 \
+    && apk add --no-cache fontconfig font-liberation \
+    && fc-cache -f \
+    && xdg-mime default imv.desktop image/svg+xml
+
 WORKDIR /joern
 
 
