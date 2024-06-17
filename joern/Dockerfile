@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.17.3
 
 # dependencies
 RUN apk update && apk upgrade && apk add --no-cache openjdk17-jdk python3 git curl gnupg bash nss ncurses php
@@ -12,7 +12,9 @@ RUN curl -sL "https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SB
 
 # building joern
 RUN git clone https://github.com/joernio/joern && cd joern && sbt stage
+RUN cd /joern && echo "" | ./querydb-install.sh
 ENV PATH ${PATH}:/joern/
 
 WORKDIR /joern
+
 

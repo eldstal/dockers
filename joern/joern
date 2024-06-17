@@ -1,8 +1,10 @@
 #!/bin/bash
 
+COMMAND=$(basename $0)
+
 docker run -it --rm \
   -v "$(pwd):/app:rw" \
   -v /tmp:/tmp \
   -w /app \
-  joern "${@}"
+  joern "/joern/${COMMAND}" "${@}"
 
