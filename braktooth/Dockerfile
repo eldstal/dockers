@@ -10,7 +10,10 @@ RUN apt install -y sudo
 RUN cd /app \
     && tar -xf wdissector_x86_64.tar.zst
 RUN cd /app/wdissector && ./requirements.sh
-RUN cd /app/wdissector && bin/bt_fuzzer --list-exploits
+
+# Not strictly needed. If it fails, feel free to comment this line out.
+# this just speeds up the first run of the bt_fuzzer
+RUN cd /app/wdissector && bin/bt_fuzzer --list-exploits || bin/bt_fuzzer --list-exploits || true
 
 
 # Firmware loader, etc
@@ -29,7 +32,7 @@ RUN cd /app/firmware \
 WORKDIR /app/wdissector
 
 # Best way we can get the data out, probably
-RUN rm -r /app/wdissector/logs && ln -s /work /app/wdissector/logs
+RUN rm -rf /app/wdissector/logs && ln -s /work /app/wdissector/logs
 
 
 ENTRYPOINT [ "/bin/bash" ]
