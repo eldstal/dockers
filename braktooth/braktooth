@@ -21,6 +21,9 @@ cd /app/firmware/release && python3 firmware.py flash ${SERIAL1}
 
 To run exploits:
 cd /app/wdissector && bin/bt_fuzzer --list-exploits
+
+Logs will be stored in the current directory.
+
 EOF
 
 docker run -it --rm \
