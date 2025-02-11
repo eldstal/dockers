@@ -1,0 +1,30 @@
+#!/bin/bash
+
+function die {
+    echo $*
+    exit 1
+}
+
+# These should be the two serial devices exposed by the ESP32
+SERIAL0=/dev/ttyUSB0
+SERIAL1=/dev/ttyUSB1
+
+[ -e "${SERIAL0}" ] || die "No serial device ${SERIAL0}"
+[ -e "${SERIAL1}" ] || die "No serial device ${SERIAL1}"
+
+cat <<EOF
+Using ${SERIAL0} and ${SERIAL1} as braktooth board.
+
+To install firmware on the board:
+cd /app/firmware/release && python3 firmware.py flash ${SERIAL1}
+
+
+To run exploits:
+cd /app/wdissector && bin/bt_fuzzer --list-exploits
+EOF
+
+docker run -it --rm \
+  --device=${SERIAL0}:/dev/ttyUSB0 \
+  --device=${SERIAL1}:/dev/ttyUSB1 \
+  -v "$(pwd):/work" \
+  braktooth
