@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:18.04
 
 RUN apt update && apt install -y zstd wget unzip
 
@@ -8,7 +8,7 @@ RUN mkdir /app && cd /app \
     && wget https://github.com/Matheus-Garbelini/braktooth_esp32_bluetooth_classic_attacks/releases/download/v1.2.0/wdissector_x86_64.tar.zst
 RUN apt install -y sudo
 RUN cd /app \
-    && tar -xf wdissector_x86_64.tar.zst
+    && tar -I zstd -xf wdissector_x86_64.tar.zst
 RUN cd /app/wdissector && ./requirements.sh
 
 # Not strictly needed. If it fails, feel free to comment this line out.
@@ -27,9 +27,23 @@ RUN cd /app/firmware \
     #&& python3 firmware.py flash /dev/ttyUSB1
 
 
+# Debug this monstrosity
+RUN wget https://github.com/pwndbg/pwndbg/releases/download/2025.01.20/pwndbg_2025.01.20_amd64-portable.tar.xz -O /app/pwndbg.tar.xz \
+    && cd /app/ && tar -xf pwndbg.tar.xz
+
 # Commands must be run from here,
 # e.g. bin/bt_fuzzer
 WORKDIR /app/wdissector
+
+# Override default configuration
+# ADB monitoring seems to only start if it is configured when bt_fuzzer starts.
+# Configure it manually and then restart the application, if needed.
+# This change should make it the default.
+RUN apt install -y jq \
+    && cp configs/bt_config.json /tmp/bt_config.json \
+    && cat /tmp/bt_config.json \
+        | jq '.config.Monitor.ActiveMonitorTypes=[3]' \
+        > configs/bt_config.json 
 
 # Best way we can get the data out, probably
 RUN rm -rf /app/wdissector/logs && ln -s /work /app/wdissector/logs

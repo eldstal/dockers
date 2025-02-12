@@ -1,16 +1,56 @@
 #!/bin/bash
 
+# These should be the two serial devices exposed by the ESP32
+SERIAL0=/dev/ttyUSB0
+SERIAL1=/dev/ttyUSB1
+
+BRAKTOOTH_ADB="/tmp/adb-braktooth"
+BRAKTOOTH_ADB_PID=""
+#BRAKTOOTH_ADB_SUDO="sudo"       # Set this if only root (on the host) has device access
+BRAKTOOTH_ADB_SUDO=""
+
 function die {
     echo $*
     exit 1
 }
 
-# These should be the two serial devices exposed by the ESP32
-SERIAL0=/dev/ttyUSB0
-SERIAL1=/dev/ttyUSB1
+
+function adb_setup {
+    # Easiest way to get ADB running in a container is to run
+    # the ADB daemon outside and allow ADB in the container
+    # to connect to it.
+    
+    echo "Extracting ancient adb..."
+    local CONTAINER=$(docker create braktooth)
+    docker cp ${CONTAINER}:/app/wdissector/3rd-party/adb/adb ${BRAKTOOTH_ADB}
+    docker rm ${CONTAINER}
+
+    if pgrep adb; then
+        echo "ADB daemon appears to already be running on the host."
+        echo "braktooth requires an ancient ADB daemon, so we must clobber."
+        echo "Press RETURN to stop running ADB daemon, or ctrl+c to abort"
+        read CONFIRM
+
+        pkill adb
+    fi
+
+    ${BRAKTOOTH_ADB_SUDO} ${BRAKTOOTH_ADB} -a server start
+
+}
+
+function adb_cleanup {
+    ${BRAKTOOTH_ADB_SUDO} ${BRAKTOOTH_ADB} -a kill-server
+}
 
 [ -e "${SERIAL0}" ] || die "No serial device ${SERIAL0}"
 [ -e "${SERIAL1}" ] || die "No serial device ${SERIAL1}"
+
+read -p "Start ADB daemon and forward to the container for monitoring? (y/N)> " USE_ADB
+
+if [ "$USE_ADB" == "y" ]; then
+    adb_setup
+fi
+
 
 cat <<EOF
 Using ${SERIAL0} and ${SERIAL1} as braktooth board.
@@ -20,14 +60,29 @@ cd /app/firmware/release && python3 firmware.py flash ${SERIAL1}
 
 
 To run exploits:
-cd /app/wdissector && bin/bt_exploiter --list-exploits
+bin/bt_exploiter --list-exploits
 
-Logs will be stored in the current directory.
+To start the fuzzer GUI:
+bin/bt_fuzzer --autostart=false
+
+Logs will be stored on the host in the current directory.
 
 EOF
 
+
+#
+# DISPLAY, --net and .Xauthority are needed for GUI operation
+#
+
 docker run -it --rm \
+  -e DISPLAY \
+  --volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
+  --net=host \
   --device=${SERIAL0}:/dev/ttyUSB0 \
   --device=${SERIAL1}:/dev/ttyUSB1 \
   -v "$(pwd):/work" \
   braktooth
+
+if [ "$USE_ADB" == "y" ]; then
+    adb_cleanup
+fi
