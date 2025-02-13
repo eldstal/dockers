@@ -65,6 +65,9 @@ bin/bt_exploiter --list-exploits
 To start the fuzzer GUI:
 bin/bt_fuzzer --autostart=false
 
+To disable ADB monitoring:
+jq '.config.Monitor.ActiveMonitorTypes=[3]' configs/bt_config.json | sponge configs/bt_config.json
+
 Logs will be stored on the host in the current directory.
 
 EOF

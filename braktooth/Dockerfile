@@ -37,13 +37,14 @@ WORKDIR /app/wdissector
 
 # Override default configuration
 # ADB monitoring seems to only start if it is configured when bt_fuzzer starts.
+#
 # Configure it manually and then restart the application, if needed.
 # This change should make it the default.
-RUN apt install -y jq \
-    && cp configs/bt_config.json /tmp/bt_config.json \
-    && cat /tmp/bt_config.json \
+# Leave the setting as [1] if the ADB spam is too much (and you don't need ADB monitoring)
+RUN apt install -y jq moreutils \
+    && cat configs/bt_config.json \
         | jq '.config.Monitor.ActiveMonitorTypes=[3]' \
-        > configs/bt_config.json 
+        | sponge configs/bt_config.json 
 
 # Best way we can get the data out, probably
 RUN rm -rf /app/wdissector/logs && ln -s /work /app/wdissector/logs
