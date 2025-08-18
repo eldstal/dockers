@@ -1,4 +1,4 @@
-FROM golang:1.22.9-alpine
+FROM golang:1.24-alpine
 RUN apk --no-cache add ca-certificates git
 
 RUN git clone https://github.com/aquasecurity/trivy.git /opt/trivy
